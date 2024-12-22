@@ -1,5 +1,6 @@
 // 工厂模式用于创建一个通用接口来隐藏具体的类的实现细节
 #include <iostream>
+#include <memory>
 
 // 定义一个形状的接口   
 class Shape{
@@ -34,28 +35,48 @@ public:
 // 定义一个工厂接口类
 class ShapeFactory{
 public:
-    virtual Shape* createShape() const = 0;
+    virtual std::unique_ptr<Shape> createShape() const = 0;
     virtual ~ShapeFactory() = default;
 };
 
 //具体的形状工厂
-class CircleFactory : ShapeFactory{
+class CircleFactory : public ShapeFactory{
 public:
-    Shape* createShape() const override{
-        return new Circle();
+    std::unique_ptr<Shape> createShape() const override{
+        return std::make_unique<Circle>();
     }
 };
 
-class SquareFactory: ShapeFactory{
+class SquareFactory: public ShapeFactory{
 public:
-    Shape* createShape() const override{
-        return new Square();
+    std::unique_ptr<Shape> createShape() const override{
+        return std::make_unique<Square>();
     }
 };
 
-class TriangleFactory: ShapeFactory{
+class TriangleFactory: public ShapeFactory{
 public:
-    Shape* createShape() const override{
-        return new Triangle();
+    std::unique_ptr<Shape> createShape() const override{
+        return std::make_unique<Triangle>();
     }
 };
+
+
+int main(){
+    // 客户端程序
+    std::unique_ptr<ShapeFactory> factory;
+
+    factory = std::make_unique<CircleFactory>();
+    std::unique_ptr<Shape> shape = std::unique_ptr<Shape>(factory->createShape());
+    shape->draw();
+
+    factory = std::make_unique<SquareFactory>();
+    shape = std::unique_ptr<Shape>(factory->createShape());
+    shape->draw();
+
+    factory = std::make_unique<TriangleFactory>();
+    shape = std::unique_ptr<Shape>(factory->createShape());
+    shape->draw();
+
+    return 0;
+}
